@@ -8,6 +8,6 @@ api = Api(api_blueprint)
 
 api.add_resource(
     URLShortnerAPI,
-    '/get_short_url',
-    '/get_short_url/'
+    '/shortener',
+    '/shortener/'
 )

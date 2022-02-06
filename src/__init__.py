@@ -9,10 +9,10 @@ from src.routes import main, api_blueprint
 def create_app():
     app = Flask(__name__)
     # database connection to flask app
-    # if os.environ.get('DATABASE_URI'):
-    #     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URI')
-    # else:
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite3"
+    if os.environ.get('DATABASE_URI'):
+        app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URI')
+    else:
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite3"
 
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

@@ -1,14 +1,21 @@
 import os
 from pyshorteners import Shortener
 from flask import request
-from flask_restful import Resource, fields, reqparse, abort as api_abort
+from flask_restful import Resource, fields, reqparse, abort as api_abort, marshal
+
+# local imports
+from src.extentions import db
+from src.models import URL
 
 url_parser = reqparse.RequestParser()
-url_parser.add_argument('url', type=str, required=True, location='json')
+url_parser.add_argument('long_url', type=str, required=True, location='json')
 
 output_fields = {
-    'short_url': fields.String
+    'short_url': fields.String,
+    'long_url': fields.String,
+    'total_clicks': fields.Integer
 }
+
 
 TOKEN = os.environ.get('BITLY_ACCESS_TOKEN')
 
@@ -20,15 +27,24 @@ class URLShortnerAPI(Resource):
 
     def get(self):
         try:
-            short_url = request.args.get('short_url')
-            if short_url:
+            if request.args.get('short_url'):
+                short_url = request.args.get('short_url')
+                url = URL.query.filter(URL.short == short_url).first_or_404()
                 return {
-                    'total_clicks': self.url_shortener.bitly.total_clicks(short_url),
-                    'short_url': short_url
+                    'short_url': url.short,
+                    'long_url': url.long,
+                    'total_clicks': self.url_shortener.bitly.total_clicks(url.short)
                 }
-            return {
-                'message': 'short url not provided in request params'
-            }
+            all_data = URL.query.all()
+            data = []
+            for url in all_data:
+                data.append({
+                    'short_url': url.short,
+                    'long_url': url.long,
+                    'total_clicks': self.url_shortener.bitly.total_clicks(url.short)
+                })
+            return marshal(data, output_fields)
+
         except Exception as e:
             print(e)
             api_abort(400, message=str(e))
@@ -36,9 +52,12 @@ class URLShortnerAPI(Resource):
     def post(self):
         try:
             post_data = url_parser.parse_args()
-            short_url = self.url_shortener.bitly.short(post_data['url'])
+            short_url = self.url_shortener.bitly.short(post_data['long_url'])
+            url = URL(long=post_data['long_url'], short=short_url)
+            db.session.add(url)
+            db.session.commit()
             return {
-                'short_url': short_url
+                'short_url': url.short
             }
         except Exception as e:
             api_abort(400, message=str(e))
