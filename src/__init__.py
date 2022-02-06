@@ -1,8 +1,8 @@
 import os
 from flask import Flask
 
+from . import models
 from .extentions import db, migrate
-from .models import *
 from src.routes import main, api_blueprint
 
 
