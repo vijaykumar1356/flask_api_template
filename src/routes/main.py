@@ -5,7 +5,4 @@ main = Blueprint('main', __name__)
 
 @main.route('/', methods=['GET'])
 def index():
-    return {'message': 'Hello Koshex World'}
-
-
-
+    return {'message': 'Hello World'}

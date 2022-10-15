@@ -1,7 +1,4 @@
-from .url_shortener import URLShortnerAPI
-from .search import SearchAPI
+from .user import UserApi
 
-__all__ = (
-    URLShortnerAPI,
-    SearchAPI
-)
+
+__all__ = ['UserApi']
