@@ -1,3 +1,4 @@
+from uuid import uuid4
 from flask import jsonify
 from flask_restful import Resource
 from flask_pydantic import validate
@@ -15,7 +16,7 @@ class UserCreate(BaseModel):
     last_name: Optional[str]
     email: EmailStr
     password: str
-    game_string: Optional[str]
+    unique_id: str
 
 
 class UserOut(UserCreate):
@@ -30,13 +31,11 @@ class UsersOut(BaseModel):
 
 
 class UserApi(Resource):
-    def __init__(self) -> None:
-        super().__init__()
 
-    def get(self, user_id: Optional[int] = None):
+    def get(self, user_id: Optional[str] = None):
         try:
             if user_id:
-                db_obj = User.query.filter(User.id == user_id).first()
+                db_obj = User.query.filter(User.unique_id == user_id).first()
                 if not db_obj:
                     raise Exception('User not found with given id !!')
                 return jsonify(UserOut.from_orm(db_obj).dict())
@@ -51,6 +50,7 @@ class UserApi(Resource):
     def post(self, body: UserCreate):
         try:
             user_obj = User(**body.dict())
+            user_obj['unique_id'] = uuid4().hex
             db.session.add(user_obj)
             db.session.commit()
             db.session.refresh(user_obj)

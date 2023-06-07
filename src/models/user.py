@@ -7,7 +7,7 @@ class User(db.Model):
     last_name = db.Column(db.String)
     email = db.Column(db.String, unique=True)
     password = db.Column(db.String, nullable=False)
-    game_string = db.Column(db.String)
+    unique_id = db.Column(db.String, nullable=False)
 
     def __repr__(self) -> str:
-        return f'<User {self.id}: {self.first_name}'
+        return f'<User {self.id}: {self.email}'
