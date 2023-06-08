@@ -16,7 +16,7 @@ class UserCreate(BaseModel):
     last_name: Optional[str]
     email: EmailStr
     password: str
-    unique_id: str
+    unique_id: Optional[str]
 
 
 class UserOut(UserCreate):
@@ -48,16 +48,13 @@ class UserApi(Resource):
 
     @validate()
     def post(self, body: UserCreate):
-        try:
-            user_obj = User(**body.dict())
-            user_obj['unique_id'] = uuid4().hex
-            db.session.add(user_obj)
-            db.session.commit()
-            db.session.refresh(user_obj)
-            return jsonify(UserOut.from_orm(user_obj).dict())
+        body.unique_id = uuid4().hex
+        user_obj = User(**body.dict())
 
-        except Exception as e:
-            api_abort(400, message=str(e))
+        db.session.add(user_obj)
+        db.session.commit()
+        print(user_obj)
+        return jsonify(UserOut.from_orm(user_obj).dict())
 
     def delete(self, user_id: int):
         try:

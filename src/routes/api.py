@@ -10,6 +10,6 @@ api.add_resource(
     UserApi,
     '/user',
     '/user/',
-    '/user/<int:user_id>',
-    '/user/<int:user_id>/'
+    '/user/<string:user_id>',
+    '/user/<string:user_id>/'
 )
