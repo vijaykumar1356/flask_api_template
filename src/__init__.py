@@ -2,7 +2,7 @@ import os
 from flask import Flask
 
 from . import models
-from .extentions import db, migrate
+from .extentions import db, migrate, register_error_handlers
 from src.routes import main, api_blueprint
 
 
@@ -21,5 +21,6 @@ def create_app():
 
     app.register_blueprint(main)
     app.register_blueprint(api_blueprint)
+    register_error_handlers(app)
 
     return app

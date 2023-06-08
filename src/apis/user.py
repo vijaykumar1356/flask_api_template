@@ -7,8 +7,7 @@ from typing import Optional, List
 
 # local imports
 from src.models import User
-from src.utils import api_abort
-from src.extentions import db
+from src.extentions import db, APIException
 
 
 class UserCreate(BaseModel):
@@ -44,10 +43,15 @@ class UserApi(Resource):
                 data = UsersOut(users=db_users)
                 return jsonify(data.dict())
         except Exception as e:
-            api_abort(400, message=str(e))
+            raise APIException(400, message=str(e))
 
     @validate()
     def post(self, body: UserCreate):
+        db_obj = User.query.filter(User.email == body.email).first()
+        if db_obj:
+            raise APIException(
+                400, f'user with email {body.email} already exists'
+            )
         body.unique_id = uuid4().hex
         user_obj = User(**body.dict())
 
@@ -66,4 +70,4 @@ class UserApi(Resource):
             return {'message': 'user record deleted successfully !!'}
 
         except Exception as e:
-            api_abort(400, message=str(e))
+            raise APIException(400, message=str(e))
